@@ -1,0 +1,16 @@
+services:
+  commerce_autotitle.route_subscriber:
+    class: Drupal\commerce_autotitle\Routing\RouteSubscriber
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: event_subscriber }
+  commerce_autotitle.manager:
+    class: Drupal\commerce_autotitle\CommerceAutoTitleManager
+    arguments: ['@entity.manager', '@entity_type.manager', '@plugin.manager.commerce_autotitle_generator']
+  commerce_autotitle.entity_decorator:
+    class: Drupal\commerce_autotitle\EntityDecorator
+    arguments: ['@entity_type.manager', '@plugin.manager.commerce_autotitle_generator']
+  plugin.manager.commerce_autotitle_generator:
+    class: Drupal\commerce_autotitle\CommerceAutoTitleGeneratorManager
+    parent: default_plugin_manager
+    arguments: ['@entity_type.manager']

@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 f52c125ae1bb3b5331775730c79237bb873ac87b James Harrison <james.harrison.email@gmail.com> 1519847511 -0600	clone: from https://github.com/drupalcommerce/project-base.git
+f52c125ae1bb3b5331775730c79237bb873ac87b f52c125ae1bb3b5331775730c79237bb873ac87b James Harrison <james.harrison.email@gmail.com> 1519847514 -0600	checkout: moving from 8.x to f52c125ae1bb3b5331775730c79237bb873ac87b
+f52c125ae1bb3b5331775730c79237bb873ac87b 93de701b907dce57a66456136c0ff0d642cc6577 James Harrison <james.harrison.email@gmail.com> 1527854351 -0500	commit: Market repository
+93de701b907dce57a66456136c0ff0d642cc6577 2c6bdb17ca4850eb87136f1940cdd6a56f664692 jch <james.harrison.email@gmail.com> 1529304118 -0500	commit: “jchCartManager.patch”

@@ -1,0 +1,2 @@
+permission_callbacks:
+  - Drupal\commerce_autotitle\CommerceAutoTitlePermissionController::autoTitlePermissions

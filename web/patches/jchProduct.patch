@@ -1,0 +1,15 @@
+diff --git a/modules/product/src/Entity/Product.php b/modules/product/src/Entity/Product.php
+index 9a7fe8ba..ccaf7f4d 100644
+--- a/modules/product/src/Entity/Product.php
++++ b/modules/product/src/Entity/Product.php
+@@ -283,8 +283,9 @@ class Product extends CommerceContentEntityBase implements ProductInterface {
+       $variation = $item->entity;
+       if ($variation->product_id->isEmpty()) {
+         $variation->product_id = $this->id();
+-        $variation->save();
++// jch moved save() out of if {} to synchronize All variations with product...  $variation->save();
+       }
++      $variation->save();
+     }
+   }
+ 

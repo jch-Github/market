@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Allows hiding of entity label fields and automatic label creation.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_entity_type_alter().
+ *
+ * Adds the Auto Label tab to the entity configuration page.
+ */
+function commerce_autotitle_entity_type_alter(array &$entity_types) {
+  $entity_types['commerce_product_type']->setLinkTemplate('auto-title', '/admin/commerce/config/product-types/{commerce_product_type}/auto-title');
+}
+
+/**
+ * Implements hook_inline_entity_form_entity_form_alter().
+ */
+function commerce_autotitle_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+  if ($entity_form['#entity_type'] == 'commerce_product' && empty($form['#commerce_autotitle_processed'])) {
+    $decorator = \Drupal::service('commerce_autotitle.entity_decorator');
+    /** @var \Drupal\commerce_autotitle\CommerceAutoTitleManager $entity */
+    $entity = $decorator->decorate($entity_form['#entity']);
+
+    if ($entity instanceof \Drupal\commerce_autotitle\CommerceAutoTitleManagerInterface) {
+      if ($entity->hasAutoTitle()) {
+        $title = $entity->getTitleName();
+        $widget = &$entity_form[$title]['widget'][0];
+        // Hide the label field. It will be automatically generated in
+        // hook_entity_presave().
+        $widget['value']['#type'] = 'hidden';
+        $widget['value']['#required'] = FALSE;
+        if (empty($widget['value']['#default_value'])) {
+          $widget['value']['#default_value'] = '%AutoTitle%';
+        }
+      }
+      else {
+        if ($entity->hasOptionalAutoTitle()) {
+          $title_property = $entity->getTitleName();
+          $widget = &$entity_form[$title_property]['widget'][0];
+          // Allow label field to be empty. It will be automatically generated
+          // in hook_entity_presave().
+          $widget['value']['#required'] = FALSE;
+        }
+      }
+
+      $form['#commerce_autotitle_processed'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_prepare_view().
+ */
+function commerce_autotitle_entity_prepare_view($entity_type_id, array $entities, array $displays, $view_mode) {
+  if ($entity_type_id != 'commerce_product') {
+    return;
+  }
+
+  foreach ($entities as $entity) {
+    if ($entity->in_preview === TRUE && $entity instanceof ContentEntityInterface) {
+      $decorator = \Drupal::service('commerce_autotitle.entity_decorator');
+      /** @var \Drupal\commerce_autotitle\CommerceAutoTitleManager $decorated_entity */
+      $decorated_entity = $decorator->decorate($entity);
+
+      if ($decorated_entity->hasTitle() && $decorated_entity->autoTitleNeeded()) {
+        $decorated_entity->setTitle();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function commerce_autotitle_commerce_product_presave(EntityInterface $entity) {
+  if ($entity instanceof ContentEntityInterface && $entity->hasField('title')) {
+    $decorator = \Drupal::service('commerce_autotitle.entity_decorator');
+    /** @var \Drupal\commerce_autotitle\CommerceAutoTitleManager $decorated_entity */
+    $decorated_entity = $decorator->decorate($entity);
+    if ($decorated_entity->hasTitle() && $decorated_entity->autoTitleNeeded()) {
+      $decorated_entity->setTitle();
+    }
+  }
+}
+
+/**
+ * Implements hook_validation_constraint_alter().
+ *
+ * Override core NotNull constraint to allow entities that use Auto Entity
+ * Labels to validate when their label is empty before being set automatically.
+ */
+function commerce_autotitle_validation_constraint_alter(array &$definitions) {
+  $definitions['NotNull']['class'] = 'Drupal\commerce_autotitle\Plugin\Validation\CommerceTitleNotNullConstraint';
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function commerce_autotitle_entity_operation(EntityInterface $entity) {
+  $operations = array();
+  $entity_type = $entity->getEntityType();
+  $entity_type_id = $entity_type->id();
+  $entity_id = $entity->id();
+  if ($entity->hasLinkTemplate('auto-title') &&
+    \Drupal::currentUser()->hasPermission('administer ' . $entity_type_id . ' TITLE')) {
+
+    $operations['auto-title'] = array(
+      'title' => t('Manage automatic title'),
+      'weight' => 100,
+      'url' => Url::fromRoute("entity.{$entity_type_id}.auto_title", array($entity_type_id => $entity_id)),
+    );
+  }
+
+  return $operations;
+}

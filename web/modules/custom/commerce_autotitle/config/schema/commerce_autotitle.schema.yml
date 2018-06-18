@@ -1,0 +1,20 @@
+commerce_product.commerce_product_type.*.third_party.commerce_autotitle:
+  type: mapping
+  label: 'AutoTITLE settings'
+  mapping:
+    mode:
+      type: string
+      label: 'Status'
+    plugin:
+      type: string
+      label: 'Plugin'
+    configuration:
+      type: commerce_autotitle.commerce_autotitle_generator.plugin.[%parent.plugin]
+
+commerce_autotitle.commerce_autotitle_generator.plugin.token:
+  type: mapping
+  mapping:
+    pattern:
+      type: string
+      label: 'TITLE replacement pattern'
+

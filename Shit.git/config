@@ -1,0 +1,24 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+	hideDotFiles = dotGitOnly
+[remote "origin"]
+	url = https://github.com/drupalcommerce/project-base.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+	pushurl = git@github.com:drupalcommerce/project-base.git
+[branch "8.x"]
+	remote = origin
+	merge = refs/heads/8.x
+[remote "composer"]
+	url = https://github.com/drupalcommerce/project-base.git
+	fetch = +refs/heads/*:refs/remotes/composer/*
+[gui]
+	wmstate = normal
+	geometry = 887x427+234+234 171 192
+[remote "master"]
+	url = https://github.com/jch-Github/market.git
+	fetch = +refs/heads/*:refs/remotes/master/*

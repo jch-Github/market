@@ -1,0 +1,38 @@
+15a16
+> use Drupal\Core\Messenger\MessengerInterface; 
+105a107,125
+> 
+>     $product = $purchased_entity->getProduct();
+>     $range = $product->get('commerce_product_minmax_range')->first();
+>     $title = ($product->get('title')->first()->getvalue())['value'];
+> 
+>     if ($range) {
+>       $quantity_range = $range->getvalue();
+>       if ($quantity < $quantity_range['from']) {
+>         \Drupal::messenger()->addWarning(
+>           t('Minimum order quantity for: '.$title.' is @min', ['@min' => $quantity_range['from']]));
+>         return;
+>       }
+>       elseif ($quantity > (int)$quantity_range['to']) {
+>         \Drupal::messenger()->addWarning(
+>           t('Maximum order quantity for: '.$title.' is @max', ['@max' => $quantity_range['to']]));
+>         return;
+>       }
+>     }
+> 
+111,113c131,141
+<       $matching_order_item->setQuantity($new_quantity);
+<       $matching_order_item->save();
+<       $saved_order_item = $matching_order_item;
+---
+>       if (($range) && ($new_quantity > (int)$quantity_range['to'])) {
+>         \Drupal::messenger()->addWarning(
+>           t('Maximum order quantity for: '.$title.' is @max ... Check your cart', 
+>           ['@max' => $quantity_range['to']]));
+>         return;
+>       }
+>       else {
+>         $matching_order_item->setQuantity($new_quantity);
+>         $matching_order_item->save();
+>         $saved_order_item = $matching_order_item;
+>       }

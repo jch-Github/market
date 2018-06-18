@@ -1,0 +1,3 @@
+commerce_autotitle.config:
+  class: \Drupal\Core\Menu\LocalTaskDefault
+  deriver: \Drupal\commerce_autotitle\Plugin\Derivative\CommerceAutoTitleConfigTask

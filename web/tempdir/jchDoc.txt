@@ -1,0 +1,1 @@
+Admin > Configuration > Media > File system ... Temporary directory name / and definitions.

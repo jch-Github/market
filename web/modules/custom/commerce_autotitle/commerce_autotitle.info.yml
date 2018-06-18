@@ -1,0 +1,13 @@
+name: Commerce Automatic Product Title
+description: Automatically Creates the TITLE of a product using tokens.
+package: Commerce (contrib)
+type: module
+# core: 8.x
+dependencies:
+  - commerce_product
+  - token
+
+version: '8.x-1.0-dev'
+core: '8.x'
+project: 'commerce_autotitle'
+# jch datestamp: 1512944590
