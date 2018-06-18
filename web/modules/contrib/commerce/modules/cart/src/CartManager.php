@@ -13,7 +13,6 @@ use Drupal\commerce_cart\Event\CartOrderItemUpdateEvent;
 use Drupal\commerce_price\Calculator;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Drupal\Core\Messenger\MessengerInterface; 
 
 /**
  * Default implementation of the cart manager.
@@ -104,41 +103,14 @@ class CartManager implements CartManagerInterface {
     $purchased_entity = $order_item->getPurchasedEntity();
     $quantity = $order_item->getQuantity();
     $matching_order_item = NULL;
-
-    $product = $purchased_entity->getProduct();
-    $range = $product->get('field_order_qty_min_max')->first();
-    $title = ($product->get('title')->first()->getvalue())['value'];
-
-    if ($range) {
-      $quantity_range = $range->getvalue();
-      if ($quantity < $quantity_range['from']) {
-        \Drupal::messenger()->addWarning(
-          t('Minimum order quantity for: '.$title.' is @min', ['@min' => $quantity_range['from']]));
-        return;
-      }
-      elseif ($quantity > (int)$quantity_range['to']) {
-        \Drupal::messenger()->addWarning(
-          t('Maximum order quantity for: '.$title.' is @max', ['@max' => $quantity_range['to']]));
-        return;
-      }
-    }
-
     if ($combine) {
       $matching_order_item = $this->orderItemMatcher->match($order_item, $cart->getItems());
     }
     if ($matching_order_item) {
       $new_quantity = Calculator::add($matching_order_item->getQuantity(), $quantity);
-      if (($range) && ($new_quantity > (int)$quantity_range['to'])) {
-        \Drupal::messenger()->addWarning(
-          t('Maximum order quantity for: '.$title.' is @max ... Check your cart', 
-          ['@max' => $quantity_range['to']]));
-        return;
-      }
-      else {
-        $matching_order_item->setQuantity($new_quantity);
-        $matching_order_item->save();
-        $saved_order_item = $matching_order_item;
-      }
+      $matching_order_item->setQuantity($new_quantity);
+      $matching_order_item->save();
+      $saved_order_item = $matching_order_item;
     }
     else {
       $order_item->set('order_id', $cart->id());
